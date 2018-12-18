@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Banlist - LiteBans</title>
+
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <link rel="stylesheet" href="styles.css">
+
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.5.21/dist/vue.js"></script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+</head>
+<body>
+    <div class="container" id="root">
+        <p v-if="page < 1">loading...</p>
+        <div class="row" style="display: none" :style="{display: page > 0 ? 'block' : 'none'}">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-header">
+                        Список заблокированных
+                    </div>
+                    <div class="card-body content">
+                        <div class="content-over" :style="{display: isLoaded ? 'none' : 'block'}"></div>
+                        <div class="form-row mb-2">
+                            <div class="col">
+                                <h5>Страница: {{page}} из {{countPages}}</h5>
+                            </div>
+                            <div class="col" @change="forType($event.target.value)">
+                                <select class="form-control">
+                                    <option value="bans">Баны</option>
+                                    <option value="mutes">Муты</option>
+                                    <option value="kicks">Кики</option>
+                                    <option value="warns">Варны</option>
+                                </select>
+                            </div>
+                            <div class="col">
+                                <input type="search" class="form-control" @keydown="forNick" placeholder="Введите ник">
+                            </div>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Игрок</th>
+                                        <th>Причина</th>
+                                        <th>Забанил</th>
+                                        <th>Дата</th>
+                                        <th v-if="type == 'bans'">До</th>
+                                        <th v-if="type == 'bans' || type == 'mutes'">Активен</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr v-for="ban in bans">
+                                        <td>{{ban.name}}</td>
+                                        <td>{{ban.reason}}</td>
+                                        <td>{{ban.banned_by_name}}</td>
+                                        <td>{{date_format(new Date(parseInt(ban.time)))}}</td>
+                                        <td v-if="type == 'bans'">{{ban.until < 1 ? 'Перманентно' : date_format(new Date(parseInt(ban.until)))}}</td>
+                                        <td v-if="type == 'bans' || type == 'mutes'">{{ban.active == 1 ? 'Да' : 'Нет'}}</td>
+                                    </tr>
+                                </tbody>
+                                <tfoot>
+                                    <tr>
+                                        <td colspan="6" class="text-center">
+                                            <banlist-pagination ref="paginationComponent" @set-page="setCurrentPage"></banlist-pagination>
+                                        </td>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script type="text/javascript" src="paginationComponent.js"></script>
+    <script type="text/javascript" src="app.js"></script>
+</body>
+</html>
